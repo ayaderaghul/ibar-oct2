@@ -27,7 +27,7 @@
    (for/list ([i n-types])
      (number->automaton (random 59049)))))
 
-(define A (random-population 1 100))
+;(define A (random-population 1 100))
 
 (define (random-one-shot-population
          h-n-types m-n-types l-n-types)
@@ -43,9 +43,7 @@
      1 (for/list ([h h-n-types])
          (number->automaton (+ 39366 (random 19683))))))))
 
-
-
-(define (evolve population cycles speed mutation rounds-per-match delta)
+(define (evolve population cycles speed mutation rounds-per-match delta name-list)
   (let* ([l (length population)]
       ;;   [types-scanned (scan-4-types population)]
          [round-results (match-population population rounds-per-match delta)]
@@ -64,12 +62,29 @@
     (set! population-mean
           (append population-mean (list average-payoff)))
     (and (< average-payoff (* 3/4 max-pay))
-         (out-rank cycles population delta))
+         (out-rank cycles population (second name-list)))
    ;; (set! pure-types
    ;;       (append pure-types (list types-scanned)))
     (if (zero? cycles)
-        (begin (plot-mean population-mean delta)
-               (out-mean population-mean delta)
-               population)
-        (evolve new-population (sub1 cycles) speed mutation rounds-per-match delta)
+        (begin (plot-mean population-mean (third name-list))
+               (out-mean population-mean (first name-list))
+               population
+                )
+        (evolve new-population (sub1 cycles) speed mutation rounds-per-match delta name-list)
         )))
+
+;; run mass
+
+(define (run-one s r d)
+  (define B (random-population 1 100))
+	(define name-list (n->srd s r d))	
+  (define B1 (evolve B 100000 s 1 r d name-list))
+  (print "hi"))
+
+
+(define (run-many list-of-speeds list-of-rounds list-of-deltas)
+  (for* ([i (in-list list-of-speeds)]
+         [j (in-list list-of-rounds)]
+	[k (in-list list-of-deltas)])
+    (run-one i j k)
+    (set! population-mean (list 0))))
