@@ -21,7 +21,7 @@
 
 (define (n->srd s r d)
   (let ([pre-name (string-append
-                   "R:/ibar/ibar-oct9/"
+                   ;"R:/"
                    "s" (number->string s) "r" (number->string r)
                    "d" (string-trim (number->string (* 10 d)) ".0"))])
     (list
