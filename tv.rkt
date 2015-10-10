@@ -10,18 +10,14 @@
 
 ;; TV
 
-(define (plot-mean data delta)
+(define (plot-mean data plot-file)
   (let* ([l (length data)]
          [coors (map list (build-list l values)
                      data)])
     (plot (lines coors)
           #:width 600 #:height 400
-          #:y-min 0 #:out-file (generate-plot-png delta))))
+          #:y-min 0 #:out-file plot-file)))
 
-(define (generate-plot-png delta)
-  (string-append "R:/ibar/simuII/simu"
-                 (string-trim (number->string (* 10 delta)) ".0")
-                 "/plot.png"))
 
 (define (plot-dynamic data N)
   (plot (lines data)
