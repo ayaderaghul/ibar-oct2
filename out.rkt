@@ -15,10 +15,15 @@
 (define (out-mean data mean-file)
   (out-data mean-file (map list data)))
 
-(define (out-rank day population rank-file)
+(define (out-rank day population n rank-file)
+  [define ranking (rank population)]
+  [define l (length ranking)]
   (out-data rank-file (append (list (list day))
-                              (map list (rank population)))))
-
+                              (map list
+                                   (if (<= l n)
+                                       ranking
+                                       (take (rank population) n)
+                                   )))))
 (define (n->srd s r d)
   (let ([pre-name (string-append
                    ;"R:/"

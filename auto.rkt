@@ -1,28 +1,6 @@
 #lang racket
 
-(provide struct-out automaton
-	automaton-init-claim
-	automaton-hh
-	automaton-hm
-	automaton-hl
-	automaton-mh
-	automaton-mm
-	automaton-ml
-	automaton-lh
-	automaton-lm
-	automaton-ll
-         accommodator
-         all-lows
-         all-mediums
-         all-highs
-         identify
-         all-lows?
-         all-mediums?
-         all-highs?
-         identify-2-types)
-
-
-
+(provide (all-defined-out))
 
 (struct automaton (init-claim hh hm hl mh mm ml lh lm ll) #:transparent)
 (define accommodator (automaton 1 0 1 2 0 1 2 0 1 2))
@@ -46,7 +24,3 @@
    (count all-highs? population)
    (count all-mediums? population)
    ))
-
-
-
-

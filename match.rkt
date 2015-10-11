@@ -1,8 +1,6 @@
 #lang racket
 (require "auto.rkt")
-(provide match-claims
-	match-pair
-	match-population)
+(provide (all-defined-out))
 
 ;; previous-claim is a list of two claims
 ;; - the agent's own claim
@@ -34,27 +32,28 @@
       (map payoff claims)
       (list 0 0)))
 
-(define (match-pair* au1 au2 results previous-claims countdown)
-  (if (zero? countdown)
-      results
-      (match-pair* au1 au2
-                   (append results (list
-                                    (match-claims previous-claims)))
-                   (list (next-claim au1 previous-claims)
-                         (next-claim au2 (reverse previous-claims)))
-                   (sub1 countdown))))
+(define (match-pair auto1 auto2 rounds-per-match)
+  (define-values (round-result next1 next2)
+    (for/fold ([round-result '()]
+               [next1 (automaton-init-claim auto1)]
+               [next2 (automaton-init-claim auto2)])
+              ([i rounds-per-match])
+      [define current-claims (list next1 next2)]
+      [define next-claim1 (next-claim auto1 current-claims)]
+      [define next-claim2 (next-claim auto2 (reverse current-claims))]
+      [define result (match-claims current-claims)]
+      (values (cons result round-result)
+              next-claim1 next-claim2)))
+  (reverse round-result))
 
-;; match a pair of automaton for n rounds
-;; return a list of round results
-(define (match-pair automaton-pair rounds-per-match)
-  (match-pair* (first automaton-pair)
-               (second automaton-pair)
-               '()
-               (map automaton-init-claim automaton-pair)
-               rounds-per-match))
 
-;; delta
-;(define delta 1)
+;; in each match, take mean of round results for each automaton
+;; returns a pair of means
+(define (take-sums round-results)
+  (map (lambda (f) (apply +  (map f round-results)))
+       (list first second)))
+
+
 (define (take-delta* f round-results delta)
   (let ([first-auto (map f round-results)])
     (for/list ([i (length first-auto)])
@@ -64,19 +63,18 @@
   (map (lambda (x) (apply + (take-delta* x round-results delta)))
        (list first second)))
 
-;; in each match, take mean of round results for each automaton
-;; returns a pair of means
-(define (take-sums round-results)
-  (map (lambda (f) (apply +  (map f round-results)))
-       (list first second)))
-
 
 (define (match-population population rounds-per-match delta)
-  (for/list ([i (/ (length population)
-                   2)])
-    (take-delta
-     (match-pair (list
-                  (list-ref population (* 2 i))
-                  (list-ref population (add1 (* 2 i))))
-                 rounds-per-match)
-     delta)))
+  (define population-result
+    (for/fold ([population-result '()])
+              ([i (/ (length population) 2)])
+      [define round-result
+        (match-pair
+         (list-ref population (* i 2))
+         (list-ref population (add1 (* i 2)))
+         rounds-per-match)]
+      (cons
+       (take-delta round-result delta)
+       population-result)))
+  (flatten (reverse population-result)))
+

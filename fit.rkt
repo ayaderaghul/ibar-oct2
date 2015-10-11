@@ -1,60 +1,28 @@
 #lang racket
-(require
-  "match.rkt")
+(require "match.rkt")
 
-(provide accumulate
-         payoff-percentages
-         accumulated-fitness
-         randomise-over-fitness
-	randomisation-test)
+(provide (all-defined-out))
 
-;; from the matching result, calculate the fitness
-(define (reductions-h f accumulated init a-list)
-  (if (null? a-list)
-      accumulated
-      (let ((next-init (f init (first a-list))))
-        (reductions-h f
-                      (append accumulated (list next-init))
-                      next-init
-                      (rest a-list)))))
-(define (reductions f init a-list)
-  (if (null? a-list)
-      '()
-      (reductions-h f '() init a-list)))
+;; FITNESS
+;; from matching result, calculate the fitness
 
-(define (reductions* f a-list)
-  (let ([init (first a-list)])
-    (reductions-h f (list init) init (rest a-list))))
+(define (accumulated-payoff-percentages payoff-list)
+  (define payoff-sum (apply + payoff-list))
+  (define-values (accumulated _)
+    (for/fold ([accumulated (list 0)]
+               [init 0])
+              ([y (in-list payoff-list)])
+      [define next-init (+ init (/ y payoff-sum))]
+      (values (cons next-init accumulated) next-init)))
+  (reverse accumulated))
 
-(define (accumulate a-list)
-  (reductions* + (cons 0 a-list)))
-
-(define (payoff-percentages payoff-list)
-  (let ([s (apply + payoff-list)])
-    (if (zero? s)
-        (for/list ([i (length payoff-list)])
-          (/ 1 (length payoff-list)))
-        (for/list ([i (length payoff-list)])
-          (/ (list-ref payoff-list i)
-             s)))))
-
-(define (accumulated-fitness population rounds-per-match)
-  (accumulate
-   (payoff-percentages
-    (flatten
-     (match-population population rounds-per-match)))))
-
-;; generate new automaton by randomising over the fitness vector
 (define (randomise-over-fitness accumulated-payoff-percentage population speed)
-  (let
-      ([len (length population)])
-    (for/list
-        ([n speed])
-      (let ([r (random)])
-        (for/and ([i len])
-          #:break (< r (list-ref accumulated-payoff-percentage i))
-          (list-ref population i))))))
-
+  (for/list ([ n speed])
+    [define r (random)]
+    (for/and ([p (in-list population)]
+              [a (in-list accumulated-payoff-percentage)]
+              #:break (< r a))
+      p)))
 
 (define (randomisation-test an-accumulated-list N)
   (for/list

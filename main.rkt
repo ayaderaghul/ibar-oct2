@@ -1,3 +1,6 @@
+#lang racket
+(provide (all-defined-out))
+
 (require "auto.rkt"
          "fit.rkt"
          "mass.rkt"
@@ -7,11 +10,6 @@
          "tv.rkt"
          "test.rkt"
          "out.rkt")
-
-
-(define population-mean '())
-(define pure-types '())
-
 
 ;; create population
 (define (random-population* n-automata-per-type types)
@@ -43,48 +41,41 @@
      1 (for/list ([h h-n-types])
          (number->automaton (+ 39366 (random 19683))))))))
 
-(define (evolve population cycles speed mutation rounds-per-match delta name-list)
-  (let* ([l (length population)]
-      ;;   [types-scanned (scan-4-types population)]
-         [round-results (match-population population rounds-per-match delta)]
-         [max-pay (apply max (flatten round-results))]
-         [average-payoff (exact->inexact (/ (apply + (flatten round-results))
-                                            l))]
-         [accum-fitness (accumulate (payoff-percentages (flatten round-results)))]
-         [survivors (drop population speed)]
-         [successors
-          (randomise-over-fitness accum-fitness population speed)]
-         [before-mutation (shuffle (append survivors successors))]
-         [new-population (mutate-populations
-                          mutation
-                          before-mutation)]
-         )
-    (set! population-mean
-          (append population-mean (list average-payoff)))
-    (and (< average-payoff (* 3/4 max-pay))
-         (out-rank cycles population (second name-list)))
-   ;; (set! pure-types
-   ;;       (append pure-types (list types-scanned)))
-    (if (zero? cycles)
-        (begin (plot-mean population-mean (third name-list))
-               (out-mean population-mean (first name-list))
-               population
-                )
-        (evolve new-population (sub1 cycles) speed mutation rounds-per-match delta name-list)
-        )))
+(define (evolve population cycles speed mutation rounds-per-match delta file-list)
+  (define-values (result popu)
+    (for/fold ([result '()]
+               [population population])
+              ([i cycles])
+      [define N (length population)]
+      [define round-results (match-population population rounds-per-match delta)]
+      [define total (apply + (flatten round-results))]
+      [define max-payoff (apply max (flatten round-results))]
+      [define average-payoff (exact->inexact
+                              (/ total N))]
+      [define accum-fitness (accumulated-payoff-percentages (flatten round-results))]
+      [define survivors (drop population speed)]
+      [define successors
+        (randomise-over-fitness accum-fitness population speed)]
+      [define before-mutation (shuffle (append survivors successors))]
+      [define new-population (mutate-populations
+                              mutation
+                              before-mutation)]
+      (out-rank i new-population 10 (second file-list))
+      (values (cons average-payoff result)
+              new-population)))
+  (out-mean (reverse result) (first file-list))
+  (plot-mean (reverse result) (third file-list)))
 
 ;; run mass
 
 (define (run-one s r d)
-  (define B (random-population 1 100))
-	(define name-list (n->srd s r d))	
-  (define B1 (evolve B 100000 s 1 r d name-list))
-  (print "hi"))
+  [define B (random-population 1 100)]
+  [define name-list (n->srd s r d)]
+  (time (evolve B 100 s 1 r d name-list)))
 
 
 (define (run-many list-of-speeds list-of-rounds list-of-deltas)
   (for* ([i (in-list list-of-speeds)]
          [j (in-list list-of-rounds)]
 	[k (in-list list-of-deltas)])
-    (run-one i j k)
-    (set! population-mean (list 0))))
+    (run-one i j k)))
