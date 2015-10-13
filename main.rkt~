@@ -43,15 +43,12 @@
 
 (define (evolve population cycles speed mutation rounds-per-match delta file-list)
   (define N (length population))
-  (define-values (result popu
-                         ;2-types
-                         )
+  (define-values (result popu 2-types)
     (for/fold ([result '()]
                [population population]
-               ;[2-types '()]
-               )
+               [2-types '()])
               ([i cycles])
-     ; [define types (scan-types population)]
+      [define types (scan-types population)]
       [define round-results (match-population population rounds-per-match delta)]
       [define total (apply + (flatten round-results))]
       [define max-payoff (apply max (flatten round-results))]
@@ -68,8 +65,7 @@
       (out-rank i new-population 6 (second file-list))
       (values (cons average-payoff result)
               new-population
-              ;(cons types 2-types)))
-              )
+              (cons types 2-types))))
   (out-mean (reverse result) (first file-list))
   (plot-mean (reverse result) (third file-list))
  ; (plot-dynamic (reverse 2-types) N)
