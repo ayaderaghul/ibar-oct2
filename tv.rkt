@@ -5,8 +5,6 @@
 (require plot)
 (plot-new-window? #t)
 
-(require plot)
-(plot-new-window? #t)
 
 ;; TV
 
@@ -15,7 +13,7 @@
          [coors (map list (build-list l values)
                      data)])
     (plot (lines coors)
-          #:width 600 #:height 400
+          #:width 800 #:height 400
           #:y-min 0 #:out-file plot-file)))
 
 
