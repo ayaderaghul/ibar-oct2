@@ -1,1 +1,0 @@
-("6.1.1" ("c7c884efe3b6e591d6892e7066c1059c746c0202" . "a93dd02f9d9b36b2cb0d8ee8dae7785ee9fc7be4") (collects #"srfi" #"13" #"string.rkt") (collects #"mzscheme" #"main.rkt") (collects #"mzlib" #"string.rkt") (collects #"mzlib" #"etc.rkt") (collects #"mzlib" #"contract.rkt"))
