@@ -17,16 +17,20 @@
 
 (define (out-rank day population n rank-file)
   [define ranking (rank population)]
+  [define truncated (for/first
+                        ([i (length ranking)]
+                         #:when (< (cdr (list-ref ranking i))
+                                   n))
+                      (take ranking i))]
   [define l (length ranking)]
   (out-data rank-file (append (list (list day))
                               (map list
-                                   (if (<= l n)
-                                       ranking
-                                       (take (rank population) n)
-                                   )))))
+                                   (and (not (false? truncated))
+                                   truncated)))))
+                                  
 (define (n->srd s r d)
   (let ([pre-name (string-append
-                   ;"R:/"
+                   "R:/ibar/simuIV/"
                    "s" (number->string s) "r" (number->string r)
                    "d" (string-trim (number->string (* 10 d)) ".0"))])
     (list
