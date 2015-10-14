@@ -1,9 +1,7 @@
 #lang racket
 
 (require "auto.rkt")
-(provide
-	create-test-population
-	)
+(provide create-test-population)
 
 (define (create-test-population high medium low accom)
    (shuffle

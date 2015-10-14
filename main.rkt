@@ -51,7 +51,7 @@
                [2-types '()]
                )
               ([i cycles])
-      [define types (scan-types population)]
+      [define types (scan-4-types population)]
       [define round-results (match-population population rounds-per-match delta)]
       [define total (apply + (flatten round-results))]
       [define max-payoff (apply max (flatten round-results))]
@@ -78,23 +78,49 @@
 
 ;; run mass
 
-(define (run-one s r d)
+`(define (run-one s r d)
   [define B (random-population 1 100)]
   [define name-list (n->srd s r d)]
   (time (evolve B 500000 s 1 r d name-list)))
 
-(define (run-many-oneshot points d)
+;; TEST 2
+(define (run-test2 cycles h m l a d name-list)
+  [define B (create-test-population h m l a)]
+  (time (evolve B cycles 10 0 30 d name-list)))
+
+(define test-points
+  (list
+   (list 900 50 1 49)
+   (list 700 250 1 49)
+   (list 400 550 1 49)
+   (list 50 50 450 450)
+   (list 250 250 250 250)
+   (list 400 200 200 200)))
+
+(define (run-many-test2 points)
+  (for ([i (length points)])
+    [define p (list-ref points i)]
+    [define B (create-test-population (first p)
+                                      (second p)
+                                      (third p)
+                                      (last p))]
+    (time (evolve B 5000 10 0 30 1 (list
+                                    "R:/ibar/test2p"
+                                    (number->string i)
+                                    ".txt")))))
+
+
+;; TEST 1
+(define (run-many-oneshot points )
   (for ([i (length points)])
     [define p (list-ref points i)]
     [define B (random-one-shot-population (last p) (second p) (first p))]
-    (time (evolve B 1000 10 0 1 d
+    (time (evolve B 1000 10 0 1 1
                   (list (string-append
-                         "R:/ibar/1s0d"
-                         (string-trim (number->string (* 10 d)) ".0")
-                         "p"
+                         "R:/ibar/test1p"
                          (number->string i)
                          ".txt"))))))
-                       
+
 
 (define point-list
   (list
