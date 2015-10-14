@@ -1,8 +1,7 @@
 #lang racket
-(provide plot-mean
-	plot-dynamic)
+(provide (all-defined-out))
 
-(require plot)
+(require plot "in.rkt")
 (plot-new-window? #t)
 
 
@@ -16,11 +15,26 @@
           #:width 800 #:height 400
           #:y-min 0 #:out-file plot-file)))
 
-
 (define (plot-dynamic data N)
-  (plot (lines data)
+(plot (lines data)
+	#:x-min 0 #:x-max N
+        #:y-min 0 #:y-max N))
+
+
+(define (plot-dynamics data-list N)
+ [define l (length data-list)]
+  [define data
+    (for/list ([i (in-range l)])
+      (lines (list-ref data-list i)))]
+  (plot data
         #:x-min 0 #:x-max N
         #:y-min 0 #:y-max N))
+
+(define (plot-dynamic-from-files file-list N)
+  [define data-list (load-dynamics file-list)]
+  (plot-dynamics data-list N))
+
+
 
 #|
 

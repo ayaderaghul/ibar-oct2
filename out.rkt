@@ -1,6 +1,6 @@
 #lang racket
-(require "csv.rkt" "scan.rkt")
-(provide out-data out-mean out-rank n->srd)
+(require "csv.rkt" "scan.rkt" 2htdp/batch-io)
+(provide (all-defined-out))
 
 ;; data:
 ;; '((1 2..)
@@ -27,7 +27,7 @@
                               (map list
                                    (and (not (false? truncated))
                                    truncated)))))
-                                  
+
 (define (n->srd s r d)
   (let ([pre-name (string-append
                    "R:/ibar/"
@@ -37,6 +37,8 @@
      (string-append pre-name "mean.txt")
      (string-append pre-name "rank.txt")
      (string-append pre-name "plot.png"))))
+
+
 
 
 #|
