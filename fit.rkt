@@ -24,10 +24,5 @@
               #:break (< r a))
       p)))
 
-(define (randomisation-test an-accumulated-list N)
-  (for/list
-      ([n 20])
-    (let ([r (random)])
-      (for/and ([i N])
-        #:break (< r (list-ref an-accumulated-list i))
-        i))))
+(module* main #f
+(randomise-over-fitness (list 0 .2 .4 1) (list 'a 'b 'c) 10))
